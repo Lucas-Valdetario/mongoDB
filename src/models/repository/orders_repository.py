@@ -1,3 +1,5 @@
+from bson.objectid import ObjectId
+
 class OrdersRepository:
     def __init__(self, db_connection) -> None:
         self.__collection_name = "orders"
@@ -10,3 +12,54 @@ class OrdersRepository:
     def insert_list_of_documents(self, list_of_documents: list) -> None:
         collection = self.__db_connection.get_collection(self.__collection_name)
         collection.insert_many(list_of_documents)
+
+    def select_many(self, doc_filter: dict) -> list:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        data = collection.find(doc_filter)
+        return data
+
+    def select_one(self, doc_filter: dict) -> dict:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        response = collection.find_one(doc_filter)
+        return response
+
+    def select_many_with_properties(self, doc_filter: dict) -> list:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        data = collection.find(doc_filter,
+            {"id": 0, "cupom": 0} # Opções de retorno
+        )
+        return list(data)
+
+    def select_if_property_exists(self) -> dict:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        response = collection.find(
+            {"address": {"$exists": True}},
+            {"_id": 0, "itens": 0}
+        )
+        return response
+
+    def select_by_object_id(self, object_id: str) -> dict:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        data = collection.find_one({"_id": ObjectId(object_id)})
+        return data
+
+    def edit_registry(self) -> None:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        collection.update_one(
+            {"_id": ObjectId("68a348c766a61f6d6c5c8a4c")}, # Filtros
+            {"$set": {"itens": ["teste"]}} # Alteração 
+        )
+
+    def edit_many_registries(self) -> None:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        collection.update_many(
+            {"itens.refrigerante": {"$exists": True,} }, # Filtros
+            {"$set": {"itens.refrigerante.quantidade": 100}} # Alteração
+        )
+
+    def edit_registry_with_increment(self) -> None:
+        collection = self.__db_connection.get_collection(self.__collection_name)
+        collection.update_one(
+            {"_id": ObjectId("68a34af42080654d1bd68961")}, # Filtros
+            {"$inc": {"itens.refrigerante.quantidade": 50}} # Alteração 
+        )
