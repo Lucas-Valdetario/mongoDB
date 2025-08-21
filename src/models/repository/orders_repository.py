@@ -28,7 +28,7 @@ class OrdersRepository:
         data = collection.find(doc_filter,
             {"id": 0, "cupom": 0} # Opções de retorno
         )
-        return list(data)
+        return data
 
     def select_if_property_exists(self) -> dict:
         collection = self.__db_connection.get_collection(self.__collection_name)
