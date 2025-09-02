@@ -1,9 +1,9 @@
 from src.main.http_types.http_response import HttpResponse
-from .types.http_not_found import HttpNotFoundError
+from .types.http_not_found import HttpNotFound
 from .types.http_unprocessable_entity import HttpUnprocessableEntityError
 
 def error_handler(error: Exception) -> HttpResponse:
-    if isinstance(error, (HttpNotFoundError), (HttpUnprocessableEntityError)):
+    if isinstance(error, (HttpNotFound, HttpUnprocessableEntityError)):
         return HttpResponse(
             status_code=error.status_code,
             body={

@@ -10,7 +10,7 @@ class RegistryUpdater:
     
     def update(self, http_request: HttpRequest) -> HttpResponse:
         try:
-            order_id = http_request.path_params["order_id"]
+            order_id = http_request.params["order_id"]
             body = http_request.body
             self.__validate_body(body)
             self.__update_order(order_id, body)
@@ -26,6 +26,7 @@ class RegistryUpdater:
         self.__orders_repository.edit_registry(order_id, update_field) 
 
     def __format_response(self, order_id: str) -> HttpResponse:    
+        order["_id"] = str(order["_id"])
         return HttpResponse(
             body={
                 "data": {

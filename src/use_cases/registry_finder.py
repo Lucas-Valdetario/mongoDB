@@ -1,6 +1,5 @@
-from src.main.http_types import http_request
-from src.main.http_types import http_response
-from src.models.repository.interfaces.orders_repository import OrdersRepository
+
+from src.models.repository.orders_repository import OrdersRepository
 from src.main.http_types.http_request import HttpRequest
 from src.main.http_types.http_response import HttpResponse
 from src.errors.types.http_not_found import HttpNotFound
@@ -12,17 +11,22 @@ class RegistryFinder:
 
     def find(self, http_request: HttpRequest) -> HttpResponse:
         try:
-            order_id = http_request.path_params["order_id"]
-            return self.__search_order(order_id)
+            order_id = http_request.params["order_id"]
+            order = self.__search_order(order_id)
+            return self.__format_response(order)
         except Exception as exception:
             return error_handler(exception)
 
     def __search_order(self, order_id: str) -> dict:
         order = self.__orders_repository.select_by_object_id(order_id)
-        if not order: raise HttpNotFound("Order not found")
+        if not order:
+            raise HttpNotFound("Order not found")
         return order
 
     def __format_response(self, order: dict) -> HttpResponse:
+    # Converte ObjectId para string, se necessário
+        if '_id' in order:
+            order['_id'] = str(order['_id'])
         return HttpResponse(
             body={
                 "data": {
